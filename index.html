@@ -11,6 +11,7 @@
     <header>React: Inception to Deploy</header>
     <a href="#basic_assumptions" class="nav-link"> Basic Assumptions</a>
     <a href="#install_dependencies" class="nav-link">Install Dependencies</a>
+    <a href="#setup_app.js" class="nav-link">Setup App.js</a>
     <a href="#organizing_components" class="nav-link">Organizing Components</a>
     <a href="#connecting_stylesheet" class="nav-link">Connecting a Stylesheet</a>
     <a href="#deploy" class="nav-link">Deploy!</a>
@@ -36,11 +37,12 @@
         <header class="heading">Install Dependencies</header>
         <p>For react applications, we will start by creating a react app from the terminal. This will auto install
             all of the required directories as you initialize the project. It is also possible to do this step
-            manually. </p>
+            manually. You are also welcome to substitute any name for your application after 'app' just remember it
+            must be lowercase.
+        </p>
         <code>$ npx create-react-app honeydo-react</code>
         <p>I prefer to begin in a folder already designated for my application, but you can also run
-            these commands globally by inserting <code>-g</code> between the 'i' and 'create'. Also note that the
-            application name must be all lowercase. You can also complete this in two steps by using the following
+            these commands globally by inserting <code>-g</code> between the 'i' and 'create'. You can also complete this in two steps by using the following
             code:</p>
         <code>$ npm i -g create-react-app</code> <br/>
             <code>$ create-react-app honeydo-react</code>
@@ -51,7 +53,45 @@
         <code>$ npm run start</code>
         <p>This should give you the following screen in your browser</p>
         <img src="images/react-home.png" alt="generic react home screen"/>
+    </section>
+    <section class="main-section" id="setup_app.js">
+        <header class="heading">Setup App.js</header>
+        <p>Let's remove all the react information built in so we can start building the application. Go into your
+            'src' directory and find the 'App.js' file.
+            <code>/src/App.js</code> </p>
+        <p>You will see the following code:</p>
+        <img src="images/app.js-code.png" alt="initial App.js code"/>
+        <p>I am going to refactor this into React classes for the purposes of this tutorial. Delete the contents of
+            the <code>App.js</code> file and add the following code instead:</p>
+        <code><pre>
+import React, { Component } from 'react';
+import './App.css';
 
+export default class App extends Component {
+  render() {
+    return (
+          &ltdiv className="App">
+            &ltheader className="App-header">
+              &lth1>
+                Welcome to HoneyDo.
+              &lt/h1>
+
+            &lt/header>
+          &lt/div>
+    )
+  }
+}</pre></code>
+        <p>Let's break down what we just did. In order to use react components, you must import them into each
+            component page. The second import will pull in the CSS file already set up when you initialized the
+            application. (We will eventually be updating this to reflect the CSS from the <a href="https://honeydo-app.herokuapp.com/">HoneyDo Django</a>
+            application, but for now leave it.) In order to view any component, you must export the content. My
+            preference is to include that in the extension of the Component itself so I don't forget, but you can also add it to the bottom of the code like this:</p>
+        <code>export default App;</code>
+        <p>The render piece is currently empty, but the return is what will allow the HTML code to display on the
+            page. Right now it is simply a welcome message, and as long as the react server is running from the terminal
+            (<code>$ npm run start</code>) you can return to <a href="http://localhost:3000/">localhost</a> to view the
+            updated page.</p>
+        <img src="images/update-home.png" alt="updated welcome to app"/>
     </section>
 </main>
 </body>
