@@ -31,7 +31,11 @@
             <li>You have some experience with props and state</li>
             <li>You are comfortable with basic CSS and HTML and have working knowledge of JavaScript functions</li>
             <li>You can troubleshoot and debug if issues come up as you work through the tutorial steps</li>
+            <li>You have set up a database that will handle the CRUD features</li>
         </ul>
+        <p>If you don't have the database set up, I recommend my <a href="https://www.spiano.dev/djangoTutorial/" target="_blank">Django Tutorial</a> which
+            will give you a Python/Django/PostgreSQL rest framework to pull from.
+        </p>
     </section>
     <section class="main-section" id="install_dependencies">
         <header class="heading">Install Dependencies</header>
@@ -46,6 +50,20 @@
             code:</p>
         <code>$ npm i -g create-react-app</code> <br/>
             <code>$ create-react-app honeydo-react</code>
+        <p>Another dependency that will help with loading individual components is a react router, so install that
+            now.</p>
+        <code>$ npm i react-router-dom</code>
+        <p>Open the project in your text editor and navigate to the <code>index.js</code> file. Inside you will want
+        to add an additional import around line 6:</p>
+        <code>import { BrowserRouter as Router } from 'react-router-dom';</code>
+        <p>Then add this Router to the ReactDom.render so everything we add from the components into the App.js file will display in
+            the browser.</p>
+        <code><pre>
+ReactDOM.render(
+    &ltRouter>
+        &ltApp />
+    &lt/Router>,
+    document.getElementById('root'));</pre></code>
         <p>You will also want to connect this repo to GitHub, so create a new repository on <a
                 href="https://github.com/" target="_blank">GitHub</a> and if you need help, don't initialize with a README.md. The
             repo will give you directions to follow for linking to your react application. Once connected, you can
@@ -61,8 +79,8 @@
             <code>/src/App.js</code> </p>
         <p>You will see the following code:</p>
         <img src="images/app.js-code.png" alt="initial App.js code"/>
-        <p>I am going to refactor this into React classes for the purposes of this tutorial. Delete the contents of
-            the <code>App.js</code> file and add the following code instead:</p>
+        <p>I am going to refactor the React Hook into React Classes for the purposes of this tutorial. Delete the
+            contents of the <code>App.js</code> file and add the following code instead:</p>
         <code><pre>
 import React, { Component } from 'react';
 import './App.css';
@@ -83,15 +101,79 @@ export default class App extends Component {
 }</pre></code>
         <p>Let's break down what we just did. In order to use react components, you must import them into each
             component page. The second import will pull in the CSS file already set up when you initialized the
-            application. (We will eventually be updating this to reflect the CSS from the <a href="https://honeydo-app.herokuapp.com/">HoneyDo Django</a>
+            application. (We will eventually be updating this to reflect the CSS from the <a
+                    href="https://honeydo-app.herokuapp.com/" target="_blank">HoneyDo Django</a>
             application, but for now leave it.) In order to view any component, you must export the content. My
             preference is to include that in the extension of the Component itself so I don't forget, but you can also add it to the bottom of the code like this:</p>
         <code>export default App;</code>
-        <p>The render piece is currently empty, but the return is what will allow the HTML code to display on the
-            page. Right now it is simply a welcome message, and as long as the react server is running from the terminal
-            (<code>$ npm run start</code>) you can return to <a href="http://localhost:3000/">localhost</a> to view the
+        <p>The render piece is currently empty, but the return is what will allow the JSX (React's built in
+            JavaScript that functions like HTML) code to display on the page. Right now it is simply a welcome message, and as long as the react server is running from the terminal
+            (<code>$ npm run start</code>) you can return to <a href="http://localhost:3000/" target="_blank">localhost</a> to view
+            the
             updated page.</p>
         <img src="images/update-home.png" alt="updated welcome to app"/>
+        <p>Since this file will function as our 'landing' page for the whole application, let's also add some
+            navigation. Keep in mind that everything added to this component will be displayed on every page. To add
+            the react counterpart to the '&lta>' tag, we need to add the following code on line 2: </p>
+         <code>import {Route, Link, Switch} from 'react-router-dom';</code>
+        <p>Route tells the browser where to go, Switch picks which component to display depending on the path, and
+            Link is the way to get there. The general rule for using 'Link' instead of '&lta>' is if the browser is
+            loading something component based, use Link. My navigation will link to my website as well as internal
+            components, so it may look slightly different for you. The two important pieces are 'Lists' and 'New
+            HoneyDo' which will be component based. Inside the header, add the navigation:
+        </p>
+        <code><pre>
+ &ltnav>
+     &lta href="https://spiano.dev"> Home &lt/a>
+     &ltLink to="/"> Lists &lt/Link>
+     &ltLink to="/todo/new"> New HoneyDo &lt/Link>
+ &lt/nav></pre></code>
+        <p> Now you want to set up the return to reflect some typical HTML tags. My preference is to place the
+            navigation inside the header, make a main tag, and put the Routes within a div tag inside the main tag.
+            So, let's move that &lth1> tag into a main or body tag and add the Routes under it.</p>
+        <code><pre>
+&ltmain>
+    &lth1>
+        Welcome to HoneyDo.
+    &lt/h1>
+    &ltdiv>
+        &ltSwitch>
+            &ltRoute path="/" exact={true} component={TodoList} />
+            &ltRoute path="/todo/new" exact={true} component={NewTodo} />
+        &lt/Switch>
+    &lt/div>
+&lt/main></pre></code>
+        <p>You will notice an error from your text editor since there isn't any code in the TodoList or NewTodo
+            file yet. A visit to <a href="http://localhost:3000/" target="_blank">localhost</a> will confirm this
+            error.</p>
+        <img src="images/compile-error.png" alt="compile error message"/>
+        <p>For now, comment the Route paths out so you can render the navigation in the localhost. You may also wish
+        to delete the CSS in the <code>src/App/App.css</code> file to make all changes easier to see.</p>
+        <img src="images/navigation-welcome.png" alt="nav and welcome message"/>
+
+    </section>
+    <section class="main-section" id="organizing_components">
+        <header class="heading">Organizing Components</header>
+        <p>I find keeping a clear filing system within my projects helps me stay organized. That said, for such a
+            small project, this file structure isn't necessary. However, for the purposes of future development or
+            more complicated applications, following this practice is recommended. Since we already know the desired
+            'views' we can create directories and files for each of the CRUD pieces:
+        </p>
+        <p>First create the following directories in the <code>src</code> folder:</p>
+        <code>App</code> <br/>
+        <code>NewTodo</code> <br/>
+        <code>OneTodo</code> <br/>
+        <code>TodoList</code> <br/>
+        <code>UpdateTodo</code>
+        <p>The filing structure should look something like this:</p>
+        <img src="images/src-files.png" alt="src filing structure"/>
+        <p>Next, move all the 'App' files into the new <code>src/App</code> directory. (You may notice your text
+            editor automatically updates the <code>index.js</code> file to reflect this new path.) Now, inside each
+            remaining directory, add a corresponding JavaScript file. For example:</p>
+        <code>src/NewTodo/NewTodo.js</code>
+        <p>The end result is a filing system that is organized by each individual component.</p>
+        <img src="images/component-filing-system.png" alt="complete component filing system"/>
+
     </section>
 </main>
 </body>
