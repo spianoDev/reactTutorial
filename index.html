@@ -8,7 +8,7 @@
 </head>
 <body>
 <nav id="navbar" class="sidenav">
-    <header>Django: Inception to Deploy</header>
+    <header>React: Inception to Deploy</header>
     <a href="#basic_assumptions" class="nav-link"> Basic Assumptions</a>
     <a href="#install_dependencies" class="nav-link">Install Dependencies</a>
     <a href="#organizing_components" class="nav-link">Organizing Components</a>
@@ -34,6 +34,24 @@
     </section>
     <section class="main-section" id="install_dependencies">
         <header class="heading">Install Dependencies</header>
+        <p>For react applications, we will start by creating a react app from the terminal. This will auto install
+            all of the required directories as you initialize the project. It is also possible to do this step
+            manually. </p>
+        <code>$ npx create-react-app honeydo-react</code>
+        <p>I prefer to begin in a folder already designated for my application, but you can also run
+            these commands globally by inserting <code>-g</code> between the 'i' and 'create'. Also note that the
+            application name must be all lowercase. You can also complete this in two steps by using the following
+            code:</p>
+        <code>$ npm i -g create-react-app</code> <br/>
+            <code>$ create-react-app honeydo-react</code>
+        <p>You will also want to connect this repo to GitHub, so create a new repository on <a
+                href="https://github.com/" target="_blank">GitHub</a> and if you need help, don't initialize with a README.md. The
+            repo will give you directions to follow for linking to your react application. Once connected, you can
+            check the current application build in your localhost by running the following:</p>
+        <code>$ npm run start</code>
+        <p>This should give you the following screen in your browser</p>
+        <img src="images/react-home.png" alt="generic react home screen"/>
+
     </section>
 </main>
 </body>
