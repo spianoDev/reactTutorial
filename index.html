@@ -14,7 +14,7 @@
     <a href="#setup_app.js" class="nav-link">Setup App.js</a>
     <a href="#organizing_components" class="nav-link">Organizing Components</a>
     <a href="#database_rest_framework" class="nav-link">Database Rest Framework</a>
-    <a href="#connecting_stylesheet" class="nav-link">Connecting a Stylesheet</a>
+    <a href="#link_TodoList_API" class="nav-link">Link TodoList.js to the API</a>
     <a href="#deploy" class="nav-link">Deploy!</a>
     <a href="#credits_and_links" class="nav-link">Credits & Links</a>
 
@@ -202,19 +202,19 @@ REST_FRAMEWORK = {
             new paths for accessing just the rest framework JSON data. Open the view paths to the <code>urls.py</code> in the application directory (in my case:
             honeDo_app/urls.py), and add these paths to the urlpattersn:</p>
         <code><pre>
-path('api/', views.TodoList.as_view(), name = 'todo_list'),
-path('api/todo/&ltint:pk>', views.TodoDetail.as_view(),
-            name = 'todo_detail'),
-path('api/todo/new', views.TodoDetail.as_view(),
-            name = 'todo_create'),
-path('api/item/new', views.ItemDetail.as_view(),
-            name = 'item_create'),
-path('api/item/&ltint:pk>/update', views.ItemDetail.as_view(),
-            name = 'item_update'),
-path('api/item/&ltint:pk>/delete', views.ItemDetail.as_view(),
-            name = 'item_delete'),
-path('api/todo/&ltint:pk>/delete', views.TodoDetail.as_view(),
-            name = 'todo_delete'),</pre></code>
+path('api/', views.TodoList.as_view(), name = 'todoList'),
+path('api-todo/&ltint:pk>', views.TodoDetail.as_view(),
+            name = 'todoDetail'),
+path('api-todo/new', views.TodoDetail.as_view(),
+            name = 'todoCreate'),
+path('api-item/new', views.ItemDetail.as_view(),
+            name = 'itemCreate'),
+path('api-item/&ltint:pk>/update', views.ItemDetail.as_view(),
+            name = 'itemUpdate'),
+path('api-item/&ltint:pk>/delete', views.ItemDetail.as_view(),
+            name = 'itemDelete'),
+path('api-todo/&ltint:pk>/delete', views.TodoDetail.as_view(),
+            name = 'todoDelete'),</pre></code>
         <p>Next we need to create serializers to handle the JSON data from our API. Create a <code>serializers.py</code>
             file in the application directory. Inside that empty file, add the following code:</p>
         <code><pre>
@@ -264,10 +264,92 @@ class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
         <code>$ python manage.py runserver</code>
         <p>As long as the server starts without errors, you can navigate to the <a href="http://localhost:8000/api/" target="_blank">
             localhost:8000</a> '/api' extensions to view the data in JSON format.</p>
-    <img src="images/TodoList-JSON.png" alt="example of Todo List as JSON data"/>
+    <img src="images/todoList-JSON.png" alt="example of Todo List as JSON data"/>
+        <p>The final step is to add CORS (Cross-Origin Resource Sharing) so the API HTTP domain can be shared with a different HTTP domain (the React portion will have
+            its own deployment so it is a separate domain). If you completed the deployment process from the
+            <a href="https://www.spiano.dev/djangoTutorial/#deploy" target="_blank">Django Tutorial</a>, this middleware will
+            already be installed. If not, you need to install the program from your project directory in the terminal.</p>
+        <code>$ pipenv install django-cors-headers</code>
+        <p>Navigate into the <code>settings.py</code> file and add the new program to the INSTALLED_APPS</p>
+        <code>'corsheaders',</code>
+        <p>Make sure you also have this line of code in the MIDDLEWARE section. It must be placed above the
+            'CommonMiddleware' so either add it to the top of that list or between the 'SessionMiddleware' and
+            'CommonMiddleware'. </p>
+        <code>'corsheaders.middleware.CorsMiddleware',</code>
+        <p>Under the MIDDLEWARE section, add the following code so you can access the API from your React localhost</p>
+        <code><pre>
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000/'
+) </pre></code>
+        <p>I ran into an issue with specifying the localhost with an already deployed version of this application so
+        if you get an error that says CORS is blocking the API call, try adding the following code instead:</p>
+        <code>CORS_ORIGIN_ALLOW_ALL = True</code>
         <p>Be sure to push these changes to both your GitHub and Heroku since the Axios calls in this tutorial will
-            go to the deployed version of the database.</p>
+            go to the deployed version of the database. If you prefer to work from localhost, just modify the links
+            in each Axios call to reflect the localhost equivalents. I also encourage you to look at the
+            <a href="https://www.django-rest-framework.org/" target="_blank">Django Rest Framework</a> documentation for specific questions or changes you may want to try
+            in your own application.</p>
     </section>
+    <section class="main-section" id="link_TodoList_API">
+        <header class="heading">Link TodoList.js to the API</header>
+        <p>Now that the API is ready, it's time to return to the components to build out the CRUD features in React.
+        Open the <code>TodoList.js</code> file in the React project. (It should still be empty.) Add the following
+            code:</p>
+        <code><pre>
+import React, { Component } from "react";
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+
+export default class TodoList extends Component {
+    constructor() {
+        super();
+        this.state = {
+            listOfTodos: []
+        };
+    }
+    componentDidMount() {
+        axios.get('https://honeydo-app.herokuapp.com/api/')
+            .then(res => {
+                console.log(res.data);
+                this.setState({ listOfTodos: res.data})
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }
+    render() {
+         let todo = this.state.listOfTodos.map(todo => {
+             return (
+             &ltdiv key={todo.title}>
+                 &ltul>
+                     &ltLink to={`https://honeydo-app.herokuapp.com/api/${todo.title}`}>{todo.title}&lt/Link>
+                 &lt/ul>
+
+             &lt/div>
+         );
+         });
+        console.log(this.state);
+        return &ltdiv>
+            &lth2> HoneyDo Lists &lt/h2>
+            {todo}
+        &lt/div>
+    }
+}</pre></code>
+        <p>This is a lot to unpack! The imports will bring in the dependencies for this component. Since this file
+            has a method (componentDidMount), we need a constructor. Now we are getting into setting state. When we
+            finished setting up the JSON data in our rest framework, we had an array of data, so the initial state
+            is an empty array. Below that is where the Axios call is. A 'get' request is for viewing data, and since
+            we want access to all the possible data, you will set the state accordingly. In order to render each
+            piece of data (each todo list) separately, we need to map through it in the rendering piece. In the
+            django view, each list item was its own link, so we repeat that here. Finally, return the information so
+            it displays with a headline followed by each list item as a link. (The console logs allow you to view
+            what is being accessed which is handy.) Before you can see the output, you need to uncomment
+        </p>
+        <code>&ltRoute path="/" exact={true} component={TodoList} /></code>
+        <p>in the <code>App.js</code> file. If everything runs, you should end up with something like this:</p>
+        <img src="images/react-todoList.png" alt="todo lists displaying from the API"/>
+    </section>
+
 </main>
 </body>
 </html>
