@@ -13,6 +13,7 @@
     <a href="#install_dependencies" class="nav-link">Install Dependencies</a>
     <a href="#setup_app.js" class="nav-link">Setup App.js</a>
     <a href="#organizing_components" class="nav-link">Organizing Components</a>
+    <a href="#database_rest_framework" class="nav-link">Database Rest Framework</a>
     <a href="#connecting_stylesheet" class="nav-link">Connecting a Stylesheet</a>
     <a href="#deploy" class="nav-link">Deploy!</a>
     <a href="#credits_and_links" class="nav-link">Credits & Links</a>
@@ -64,6 +65,8 @@ ReactDOM.render(
         &ltApp />
     &lt/Router>,
     document.getElementById('root'));</pre></code>
+        <p>I like using Axios to make CRUD calls to the database from React so let's import that dependency now.</p>
+        <code>$ npm i axios</code>
         <p>You will also want to connect this repo to GitHub, so create a new repository on <a
                 href="https://github.com/" target="_blank">GitHub</a> and if you need help, don't initialize with a README.md. The
             repo will give you directions to follow for linking to your react application. Once connected, you can
@@ -173,7 +176,97 @@ export default class App extends Component {
         <code>src/NewTodo/NewTodo.js</code>
         <p>The end result is a filing system that is organized by each individual component.</p>
         <img src="images/component-filing-system.png" alt="complete component filing system"/>
+    </section>
+    <section class="main-section" id="database_rest_framework">
+        <header class="heading">Database Rest Framework</header>
+        <p>Assuming you have a database already established, you need to be sure the contents are in JSON format so
+            passing data back and forth between React and the database is formatted correctly. Essentially, you are
+            transforming the existing database into an API. If you followed my
+            <a href="https://www.spiano.dev/djangoTutorial/" target="_blank">Django Tutorial</a>, you can set up a
+            rest framework for the HoneyDo database in your existing backend project after
+            completing the 'Using Django Admin' portion of the tutorial. Open the backend project in your text
+            editor, and cd into the project from the terminal. Install the Django Rest Framework to the existing
+            program by running the following command in the terminal:</p>
+        <code>$ pipenv install djangorestframework</code>
+        <p>Now navigate into the <code>settings.py</code> in the project directory. Add <code>'rest_framework
+            ',</code> to the list of INSTALLED_APPS and add the following code under the MIDDLEWARE chunk of code
+            (around line 55):
+        </p>
+        <code><pre>
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
+}  </pre></code>
+        <p>Since we have already built out a viewable front end for the existing database, you will need to create
+            new paths for accessing just the rest framework JSON data. Open the view paths to the <code>urls.py</code> in the application directory (in my case:
+            honeDo_app/urls.py), and add these paths to the urlpattersn:</p>
+        <code><pre>
+path('api/', views.TodoList.as_view(), name = 'todo_list'),
+path('api/todo/&ltint:pk>', views.TodoDetail.as_view(),
+            name = 'todo_detail'),
+path('api/todo/new', views.TodoDetail.as_view(),
+            name = 'todo_create'),
+path('api/item/new', views.ItemDetail.as_view(),
+            name = 'item_create'),
+path('api/item/&ltint:pk>/update', views.ItemDetail.as_view(),
+            name = 'item_update'),
+path('api/item/&ltint:pk>/delete', views.ItemDetail.as_view(),
+            name = 'item_delete'),
+path('api/todo/&ltint:pk>/delete', views.TodoDetail.as_view(),
+            name = 'todo_delete'),</pre></code>
+        <p>Next we need to create serializers to handle the JSON data from our API. Create a <code>serializers.py</code>
+            file in the application directory. Inside that empty file, add the following code:</p>
+        <code><pre>
+from rest_framework import serializers
+from .models import Todo, Item
 
+class TodoSerializer(serializers.HyperlinkedModelSerializer):
+
+    todo_url = serializers.ModelSerializer.serializer_url_field(
+        view_name = 'todo_detail'
+    )
+
+    class Meta:
+        model = Todo
+        fields = ['id', 'title', 'date', 'person', 'todo_url',]
+
+class ItemSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Item
+        fields = ['id', 'task', 'todo',]</pre></code>
+        <p>These serializers look almost identical to the models and since the fields include 'id' that
+            automatically added piece will also be accessible which is important when working with CRUD features
+            from the React side. The url will allow the detail item to be a clickable link inside the rest framework
+            The next step adds to the <code>views.py</code> file in the application directory.
+            We have already imported the models, but add the following two imports on lines 4 & 5:</p>
+        <code>from rest_framework import generics</code> <br/>
+        <code>from .serializers import TodoSerializer, ItemSerializer</code>
+        <p>Since the serializer uses classes, we will add them to the top of the page directly under the imports.
+            You may also add them after the def methods if you prefer. We need three classes: one for all the Todo
+            Lists, one for the detail of each Todo, and one for the detail of each Item in the Todo list.</p>
+        <code><pre>
+class TodoList(generics.ListCreateAPIView):
+    queryset = Todo.objects.all()
+    serializer_class = TodoSerializer
+
+class TodoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Todo.objects.all()
+    serializer_class = TodoSerializer
+
+class ItemDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Item.objects.all()
+    serializer_class = ItemSerializer</pre></code>
+        <p>Now check to see if that works by opening your environment in the terminal</p>
+        <code>$ pipenv shell</code>
+        <p>Then run the localhost server</p>
+        <code>$ python manage.py runserver</code>
+        <p>As long as the server starts without errors, you can navigate to the <a href="http://localhost:8000/api/" target="_blank">
+            localhost:8000</a> '/api' extensions to view the data in JSON format.</p>
+    <img src="images/TodoList-JSON.png" alt="example of Todo List as JSON data"/>
+        <p>Be sure to push these changes to both your GitHub and Heroku since the Axios calls in this tutorial will
+            go to the deployed version of the database.</p>
     </section>
 </main>
 </body>
